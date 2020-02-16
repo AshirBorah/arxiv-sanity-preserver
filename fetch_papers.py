@@ -79,9 +79,10 @@ if __name__ == "__main__":
 
   print(base_url+query)
   with urllib.request.urlopen(base_url+query) as url:
-
       response = json.load(url)
 
+  print(response['messages'])
+  print(response['messages'][0])
   total_responses = int(response['messages'][0]['total'])
   print("Got %i entries" % (total_responses))
 
@@ -90,9 +91,9 @@ if __name__ == "__main__":
 
   for index in range(args.start_index,total_responses,100):
       query = '%s/%s/%i' % (args.start_date,args.end_date,index)
-      print(base_url+query)
+      # print(base_url+query)
       with urllib.request.urlopen(base_url+query) as url:
-          print(url)
+          # print(url)
           response = json.load(url)
 
       for entry in response['collection']:
@@ -112,7 +113,7 @@ if __name__ == "__main__":
             num_skipped += 1
 
       # print some information
-      print('Added %d papers, already had %d.' % (num_added, num_skipped))
+      print('Added %d papers of %d in this query, already had %d.' % (num_added, total_responses, num_skipped))
 
       if len(response['collection']) == 0:
         print('Received no results from arxiv. Rate limiting? Exiting. Restart later maybe.')

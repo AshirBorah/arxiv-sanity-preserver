@@ -24,7 +24,7 @@ def download_pdf(pid,j):
   numtot += 1
   try:
     if not basename in have:
-      print('fetching %s into %s' % (pdf_url, fname))
+      print('\nFetching %s into %s' % (pdf_url, fname))
       req = urlopen(pdf_url, None, timeout_secs)
       with open(fname, 'wb') as fp:
           shutil.copyfileobj(req, fp)
@@ -35,9 +35,10 @@ def download_pdf(pid,j):
   except Exception as e:
     print('error downloading: ', pdf_url)
     print(e)
-  return pdf_url
 
   print('%d/%d of %d downloaded ok.' % (numok, numtot, len(db)))
+
+
 
 timeout_secs = 10 # after this many seconds we give up on a paper
 if not os.path.exists(Config.pdf_dir): os.makedirs(Config.pdf_dir)
@@ -74,6 +75,4 @@ q.join()
 #     download_pdf(pid,j)
 
 
-
-
-print('final number of papers downloaded okay: %d/%d' % (numok, len(db)))
+print('Final number of papers downloaded okay: %d/%d' % (numok, len(db)))

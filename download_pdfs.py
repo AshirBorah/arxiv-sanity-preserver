@@ -15,11 +15,13 @@ numok = 0
 numtot = 0
 db = pickle.load(open(Config.db_path, 'rb'))
 for pid,j in db.items():
-  
-  pdfs = [x['href'] for x in j['links'] if x['type'] == 'application/pdf']
-  assert len(pdfs) == 1
-  pdf_url = pdfs[0] + '.pdf'
+
+
+  pdf_url = j['links']
+  print(pdf_url)
+  #assert len(pdfs) == 1
   basename = pdf_url.split('/')[-1]
+  print(basename)
   fname = os.path.join(Config.pdf_dir, basename)
 
   # try retrieve the pdf
@@ -37,8 +39,7 @@ for pid,j in db.items():
   except Exception as e:
     print('error downloading: ', pdf_url)
     print(e)
-  
-  print('%d/%d of %d downloaded ok.' % (numok, numtot, len(db)))
-  
-print('final number of papers downloaded okay: %d/%d' % (numok, len(db)))
 
+  print('%d/%d of %d downloaded ok.' % (numok, numtot, len(db)))
+
+print('final number of papers downloaded okay: %d/%d' % (numok, len(db)))

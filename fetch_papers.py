@@ -11,12 +11,13 @@ import random
 import argparse
 import urllib.request
 import feedparser
+import json
 
-from utils import Config, safe_pickle_dump
+from utils import Config, safe_pickle_dump, add_pdf_url_to_record
 
 def encode_feedparser_dict(d):
-  """ 
-  helper function to get rid of feedparser bs with a deep copy. 
+  """
+  helper function to get rid of feedparser bs with a deep copy.
   I hate when libs wrap simple things in their own classes.
   """
   if isinstance(d, feedparser.FeedParserDict) or isinstance(d, dict):
@@ -33,7 +34,7 @@ def encode_feedparser_dict(d):
     return d
 
 def parse_arxiv_url(url):
-  """ 
+  """
   examples is http://arxiv.org/abs/1512.08756v2
   we want to extract the raw id and the version
   """
@@ -47,19 +48,17 @@ if __name__ == "__main__":
 
   # parse input arguments
   parser = argparse.ArgumentParser()
-  parser.add_argument('--search-query', type=str,
-                      default='cat:cs.CV+OR+cat:cs.AI+OR+cat:cs.LG+OR+cat:cs.CL+OR+cat:cs.NE+OR+cat:stat.ML',
-                      help='query used for arxiv API. See http://arxiv.org/help/api/user-manual#detailed_examples')
-  parser.add_argument('--start-index', type=int, default=0, help='0 = most recent API result')
-  parser.add_argument('--max-index', type=int, default=10000, help='upper bound on paper index we will fetch')
-  parser.add_argument('--results-per-iteration', type=int, default=100, help='passed to arxiv API')
-  parser.add_argument('--wait-time', type=float, default=5.0, help='lets be gentle to arxiv API (in number of seconds)')
-  parser.add_argument('--break-on-no-added', type=int, default=1, help='break out early if all returned query papers are already in db? 1=yes, 0=no')
+  parser.add_argument('--start_date', type=str, default='2020-02-01', help='The start date of query in YYYY-MM-DD format')
+  parser.add_argument('--end_date', type=str, default='2020-02-02', help='The end date of query in YYYY-MM-DD format')
+  parser.add_argument('--start_index', type=int, default=0, help='start index of the search')
+  parser.add_argument('--results-per-iteration', type=int, default=100, help='passed to biorxiv API')
+  parser.add_argument('--wait-time', type=float, default=3.0, help='lets be gentle to arxiv API (in number of seconds)')
+  parser.add_argument('--break-on-no-added', type=int, default=0, help='break out early if all returned query papers are already in db? 1=yes, 0=no')
   args = parser.parse_args()
 
   # misc hardcoded variables
-  base_url = 'http://export.arxiv.org/api/query?' # base api query url
-  print('Searching arXiv for %s' % (args.search_query, ))
+  base_url = 'https://api.biorxiv.org/detail/' # base api query url
+  print('Searching arXiv from %s to %s' % (args.start_date, args.end_date))
 
   # lets load the existing database to memory
   try:
@@ -72,53 +71,62 @@ if __name__ == "__main__":
 
   # -----------------------------------------------------------------------------
   # main loop where we fetch the new results
-  print('database has %d entries at start' % (len(db), ))
+  print('Database has %d entries at start' % (len(db), ))
   num_added_total = 0
-  for i in range(args.start_index, args.max_index, args.results_per_iteration):
 
-    print("Results %i - %i" % (i,i+args.results_per_iteration))
-    query = 'search_query=%s&sortBy=lastUpdatedDate&start=%i&max_results=%i' % (args.search_query,
-                                                         i, args.results_per_iteration)
-    with urllib.request.urlopen(base_url+query) as url:
-      response = url.read()
-    parse = feedparser.parse(response)
-    num_added = 0
-    num_skipped = 0
-    for e in parse.entries:
 
-      j = encode_feedparser_dict(e)
+  query = '%s/%s/%i' % (args.start_date,args.end_date,args.start_index)
 
-      # extract just the raw arxiv id and version for this paper
-      rawid, version = parse_arxiv_url(j['id'])
-      j['_rawid'] = rawid
-      j['_version'] = version
+  print(base_url+query)
+  with urllib.request.urlopen(base_url+query) as url:
 
-      # add to our database if we didn't have it before, or if this is a new version
-      if not rawid in db or j['_version'] > db[rawid]['_version']:
-        db[rawid] = j
-        print('Updated %s added %s' % (j['updated'].encode('utf-8'), j['title'].encode('utf-8')))
-        num_added += 1
-        num_added_total += 1
-      else:
-        num_skipped += 1
+      response = json.load(url)
 
-    # print some information
-    print('Added %d papers, already had %d.' % (num_added, num_skipped))
+  total_responses = int(response['messages'][0]['total'])
+  print("Got %i entries" % (total_responses))
 
-    if len(parse.entries) == 0:
-      print('Received no results from arxiv. Rate limiting? Exiting. Restart later maybe.')
-      print(response)
-      break
+  num_added = 0
+  num_skipped = 0
 
-    if num_added == 0 and args.break_on_no_added == 1:
-      print('No new papers were added. Assuming no new papers exist. Exiting.')
-      break
+  for index in range(args.start_index,total_responses,100):
+      query = '%s/%s/%i' % (args.start_date,args.end_date,index)
+      print(base_url+query)
+      with urllib.request.urlopen(base_url+query) as url:
+          print(url)
+          response = json.load(url)
 
-    print('Sleeping for %i seconds' % (args.wait_time , ))
-    time.sleep(args.wait_time + random.uniform(0, 3))
+      for entry in response['collection']:
+
+          entry = add_pdf_url_to_record(entry)
+          # extract just the raw arxiv id and version for this paper
+          entry_doi = entry['doi']
+          entry['version'] = int(entry['version'])
+
+          # add to our database if we didn't have it before, or if this is a new version
+          if not entry['doi'] in db or int(entry['version']) > int(db[entry_doi]['version']):
+            db[entry_doi] = entry
+            print('Updated %s added v%s' % (entry['title'], entry['version']))
+            num_added += 1
+            num_added_total += 1
+          else:
+            num_skipped += 1
+
+      # print some information
+      print('Added %d papers, already had %d.' % (num_added, num_skipped))
+
+      if len(response['collection']) == 0:
+        print('Received no results from arxiv. Rate limiting? Exiting. Restart later maybe.')
+        print(response['message']['status'])
+        break
+
+      if num_added == 0 and args.break_on_no_added == 1:
+        print('No new papers were added. Assuming no new papers exist. Exiting.')
+        break
+
+      print('Sleeping for %i seconds' % (args.wait_time , ))
+      time.sleep(args.wait_time + random.uniform(0, 3))
 
   # save the database before we quit, if we found anything new
   if num_added_total > 0:
     print('Saving database with %d papers to %s' % (len(db), Config.db_path))
     safe_pickle_dump(db, Config.db_path)
-

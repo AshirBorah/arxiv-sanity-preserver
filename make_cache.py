@@ -2,7 +2,7 @@
 computes various cache things on top of db.py so that the server
 (running from serve.py) can start up and serve faster when restarted.
 
-this script should be run whenever db.p is updated, and 
+this script should be run whenever db.p is updated, and
 creates db2.p, which can be read by the server.
 """
 
@@ -30,17 +30,18 @@ idf = meta['idf']
 
 print('decorating the database with additional information...')
 for pid,p in db.items():
-  timestruct = dateutil.parser.parse(p['updated'])
-  p['time_updated'] = int(timestruct.strftime("%s")) # store in struct for future convenience
-  timestruct = dateutil.parser.parse(p['published'])
-  p['time_published'] = int(timestruct.strftime("%s")) # store in struct for future convenience
+    timestruct = dateutil.parser.parse(p['date'])
+    p['time_updated'] = int(timestruct.strftime("%s")) # store in struct for future convenience
+    #timestruct = dateutil.parser.parse(p['published'])
+    #p['time_published'] = int(timestruct.strftime("%s")) # store in struct for future convenience
 
 print('computing min/max time for all papers...')
-tts = [time.mktime(dateutil.parser.parse(p['updated']).timetuple()) for pid,p in db.items()]
+tts = [time.mktime(dateutil.parser.parse(p['date']).timetuple()) for pid,p in db.items()]
 ttmin = min(tts)*1.0
 ttmax = max(tts)*1.0
+print(ttmax,ttmin)
 for pid,p in db.items():
-  tt = time.mktime(dateutil.parser.parse(p['updated']).timetuple())
+  tt = time.mktime(dateutil.parser.parse(p['date']).timetuple())
   p['tscore'] = (tt-ttmin)/(ttmax-ttmin)
 
 print('precomputing papers date sorted...')
@@ -87,13 +88,17 @@ print('building an index for faster search...')
 search_dict = {}
 for pid,p in db.items():
   dict_title = makedict(p['title'], forceidf=5, scale=3)
-  dict_authors = makedict(' '.join(x['name'] for x in p['authors']), forceidf=5)
-  dict_categories = {x['term'].lower():5 for x in p['tags']}
-  if 'and' in dict_authors: 
+  print(p['authors'])
+  print(type(p['authors']))
+  #dict_authors = makedict(' '.join(x['name'] for x in p['authors']), forceidf=5)
+  dict_authors = makedict(p['authors'].replace(';',''), forceidf=5)
+  # dict_categories = {x['term'].lower():5 for x in p['tags']}
+  if 'and' in dict_authors:
     # special case for "and" handling in authors list
     del dict_authors['and']
-  dict_summary = makedict(p['summary'])
-  search_dict[pid] = merge_dicts([dict_title, dict_authors, dict_categories, dict_summary])
+  dict_summary = makedict(p['abstract'])
+  # search_dict[pid] = merge_dicts([dict_title, dict_authors, dict_categories, dict_summary])
+  search_dict[pid] = merge_dicts([dict_title, dict_authors, dict_summary])
 CACHE['search_dict'] = search_dict
 
 # save the cache

@@ -24,6 +24,7 @@ if not os.path.exists(Config.txt_dir):
 
 have = set(os.listdir(Config.txt_dir))
 files = os.listdir(Config.pdf_dir)
+print(files)
 for i,f in enumerate(files): # there was a ,start=1 here that I removed, can't remember why it would be there. shouldn't be, i think.
 
   txt_basename = f + '.txt'
@@ -45,4 +46,3 @@ for i,f in enumerate(files): # there was a ,start=1 here that I removed, can't r
     os.system('touch ' + txt_path) # create empty file, but it's a record of having tried to convert
 
   time.sleep(0.01) # silly way for allowing for ctrl+c termination
-

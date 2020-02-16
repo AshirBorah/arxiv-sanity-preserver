@@ -1,7 +1,7 @@
 
 # arxiv sanity preserver
 
-This project is a web interface that attempts to tame the overwhelming flood of papers on Arxiv. It allows researchers to keep track of recent papers, search for papers, sort papers by similarity to any paper, see recent popular papers, to add papers to a personal library, and to get personalized recommendations of (new or old) Arxiv papers. This code is currently running live at [www.arxiv-sanity.com/](http://www.arxiv-sanity.com/), where it's serving 25,000+ Arxiv papers from Machine Learning (cs.[CV|AI|CL|LG|NE]/stat.ML) over the last ~3 years. With this code base you could replicate the website to any of your favorite subsets of Arxiv by simply changing the categories in `fetch_papers.py`.
+This project is a web interface that attempts to tame the overwhelming flood of papers on bioRxiv. It allows researchers to keep track of recent papers, search for papers, sort papers by similarity to any paper, see recent popular papers, to add papers to a personal library, and to get personalized recommendations of (new or old) bioRxiv papers. This code will be available/is available at [www.biorxiv-sanity.com.](http://www.biorxiv-sanity.com/), where it's serving 25,000+ Arxiv papers from Machine Learning (cs.[CV|AI|CL|LG|NE]/stat.ML) over the last ~3 years. With this code base you could replicate the website to any of your favorite subsets of Arxiv by simply changing the categories in `fetch_papers.py`.
 
 ![user interface](https://raw.github.com/karpathy/arxiv-sanity-preserver/master/ui.jpeg)
 
@@ -38,7 +38,7 @@ The processing pipeline requires you to run a series of scripts, and at this sta
 7. Run `make_cache.py` for various preprocessing so that server starts faster (and make sure to run `sqlite3 as.db < schema.sql` if this is the very first time ever you're starting arxiv-sanity, which initializes an empty database).
 8. Start the mongodb daemon in the background. Mongodb can be installed by following the instructions here - https://docs.mongodb.com/tutorials/install-mongodb-on-ubuntu/.
   * Start the mongodb server with - `sudo service mongod start`.
-  * Verify if the server is running in the background : The last line of /var/log/mongodb/mongod.log file must be - 
+  * Verify if the server is running in the background : The last line of /var/log/mongodb/mongod.log file must be -
 `[initandlisten] waiting for connections on port <port> `
 9. Run the flask server with `serve.py`. Visit localhost:5000 and enjoy sane viewing of papers!
 

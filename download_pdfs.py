@@ -15,8 +15,10 @@ numok = 0
 numtot = 0
 db = pickle.load(open(Config.db_path, 'rb'))
 for pid,j in db.items():
+    download_pdf(pid,j)
 
 
+def download_pdf(pid,j):
   pdf_url = j['links']
   print(pdf_url)
   #assert len(pdfs) == 1

@@ -5,6 +5,7 @@ import pickle
 import argparse
 import dateutil.parser
 from random import shuffle, randrange, uniform
+from datetime import datetime
 
 import numpy as np
 from sqlite3 import dbapi2 as sqlite3
@@ -157,11 +158,11 @@ def papers_filter_version(papers, v):
   if v != '1':
     return papers # noop
   intv = int(v)
-  filtered = [p for p in papers if p['_version'] == intv]
+  filtered = [p for p in papers if p['version'] == intv]
+  print(filtered)
   return filtered
 
 def encode_json(ps, n=10, send_images=True, send_abstracts=True):
-
   libids = set()
   if g.user:
     # user is logged in, lets fetch their saved library data
@@ -177,24 +178,28 @@ def encode_json(ps, n=10, send_images=True, send_abstracts=True):
     struct['title'] = p['title']
     struct['pid'] = idvv
     struct['rawpid'] = p['doi']
-    struct['category'] = p['arxiv_primary_category']['term']
-    struct['authors'] = [a['name'] for a in p['authors']]
-    struct['link'] = p['link']
-    struct['in_library'] = 1 if p['_rawid'] in libids else 0
+    struct['category'] = p['category']
+    struct['authors'] = [p['authors'].split(';')]
+    struct['link'] = p['links']
+    struct['in_library'] = 1 if p['doi'] in libids else 0
     if send_abstracts:
-      struct['abstract'] = p['summary']
+      struct['abstract'] = p['abstract']
     if send_images:
       struct['img'] = '/static/thumbs/' + idvv + '.pdf.jpg'
-    struct['tags'] = [t['term'] for t in p['tags']]
+    #struct['tags'] = [t['term'] for t in p['tags']]
 
     # render time information nicely
-    timestruct = dateutil.parser.parse(p['updated'])
+    #timestruct = dateutil.parser.parse(str(p['time_updated']))
+
+    timestruct = datetime.fromtimestamp(int(p['time_updated']))
     struct['published_time'] = '%s/%s/%s' % (timestruct.month, timestruct.day, timestruct.year)
-    timestruct = dateutil.parser.parse(p['published'])
-    struct['originally_published_time'] = '%s/%s/%s' % (timestruct.month, timestruct.day, timestruct.year)
+    #timestruct = dateutil.parser.parse(p['published'])
+    # if p['published'] != 'NA':
+    #     timestruct = datetime.fromtimestamp(int(p['published']))
+    #     struct['originally_published_time'] = '%s/%s/%s' % (timestruct.month, timestruct.day, timestruct.year)
 
     # fetch amount of discussion on this paper
-    struct['num_discussion'] = comments.count({ 'pid': p['_rawid'] })
+    struct['num_discussion'] = comments.count({ 'pid': p['doi'] })
 
     # arxiv comments from the authors (when they submit the paper)
     cc = p.get('arxiv_comment', '')
@@ -247,7 +252,7 @@ def intmain():
   papers = [db[pid] for pid in DATE_SORTED_PIDS] # precomputed
   papers = papers_filter_version(papers, vstr)
   ctx = default_context(papers, render_format='recent',
-                        msg='Showing most recent Arxiv papers:')
+                        msg='Showing most recent Biorxiv papers:')
   return render_template('main.html', **ctx)
 
 @app.route("/<request_pid>")

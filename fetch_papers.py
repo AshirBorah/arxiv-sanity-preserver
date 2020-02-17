@@ -52,7 +52,7 @@ if __name__ == "__main__":
   parser.add_argument('--end_date', type=str, default='2020-02-02', help='The end date of query in YYYY-MM-DD format')
   parser.add_argument('--start_index', type=int, default=0, help='start index of the search')
   parser.add_argument('--results-per-iteration', type=int, default=100, help='passed to biorxiv API')
-  parser.add_argument('--wait-time', type=float, default=3.0, help='lets be gentle to arxiv API (in number of seconds)')
+  parser.add_argument('--wait-time', type=float, default=1.0, help='lets be gentle to arxiv API (in number of seconds)')
   parser.add_argument('--break-on-no-added', type=int, default=0, help='break out early if all returned query papers are already in db? 1=yes, 0=no')
   args = parser.parse_args()
 
@@ -113,11 +113,10 @@ if __name__ == "__main__":
             num_skipped += 1
 
       # print some information
-      print('Added %d papers of %d in this query, already had %d.' % (num_added, total_responses, num_skipped))
+      print('Added %d papers of %d in this query, already had %d. Current index %d' % (num_added, total_responses, num_skipped, index))
 
       if len(response['collection']) == 0:
         print('Received no results from arxiv. Rate limiting? Exiting. Restart later maybe.')
-        print(response['message']['status'])
         break
 
       if num_added == 0 and args.break_on_no_added == 1:
@@ -125,9 +124,13 @@ if __name__ == "__main__":
         break
 
       print('Sleeping for %i seconds' % (args.wait_time , ))
-      time.sleep(args.wait_time + random.uniform(0, 3))
+      time.sleep(args.wait_time + random.uniform(0, 1))
+	
+      if num_added_total >0 and index%5000==0:
+        print('Saving database with %d papers to %s' % (len(db), Config.db_path))
+        safe_pickle_dump(db, Config.db_path)
 
   # save the database before we quit, if we found anything new
-  if num_added_total > 0:
+  if num_added_total >0:
     print('Saving database with %d papers to %s' % (len(db), Config.db_path))
     safe_pickle_dump(db, Config.db_path)

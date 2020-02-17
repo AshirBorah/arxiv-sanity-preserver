@@ -56,7 +56,7 @@ def worker():
         download_pdf(item[0], item[1])
         q.task_done()
 
-num_worker_threads = 8
+num_worker_threads = 40
 
 q = queue.Queue()
 for i in range(num_worker_threads):

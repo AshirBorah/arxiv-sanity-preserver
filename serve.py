@@ -171,7 +171,8 @@ def encode_json(ps, n=10, send_images=True, send_abstracts=True):
     libids = {strip_version(x['paper_id']) for x in user_library}
 
   ret = []
-  for i in range(min(len(ps),n)):
+  print(ps[0])
+  for i in range(min(len(ps),1)):
     p = ps[i]
     idvv = '%sv%d' % (p['doi'], p['version'])
     struct = {}
@@ -187,7 +188,8 @@ def encode_json(ps, n=10, send_images=True, send_abstracts=True):
     if send_abstracts:
       struct['abstract'] = p['abstract']
     if send_images:
-      struct['img'] = '/static/thumbs/' + idvv + '.pdf.jpg'
+      #struct['img'] = '/static/thumbs/' + idvv + '.pdf.jpg'
+      struct['img'] = p['links'].split('/')[-1] + '.jpg'
     #struct['tags'] = [t['term'] for t in p['tags']]
     struct['tags'] = [p['category']]
 
@@ -211,6 +213,7 @@ def encode_json(ps, n=10, send_images=True, send_abstracts=True):
     struct['comment'] = cc
 
     ret.append(struct)
+  print(ret[0])
   return ret
 
 # -----------------------------------------------------------------------------

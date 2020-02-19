@@ -212,7 +212,6 @@ def encode_json(ps, n=10, send_images=True, send_abstracts=True):
     struct['comment'] = cc
 
     ret.append(struct)
-  print(ret[0])
   return ret
 
 # -----------------------------------------------------------------------------

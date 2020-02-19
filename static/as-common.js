@@ -2,7 +2,7 @@
 
 // helper function so that we can access keys in url bar
 var QueryString = function () {
-  // This function is anonymous, is executed immediately and 
+  // This function is anonymous, is executed immediately and
   // the return value is assigned to QueryString!
   var query_string = {};
   var query = window.location.search.substring(1);
@@ -52,13 +52,13 @@ function build_ocoins_str(p) {
 }
 
 function build_authors_html(authors) {
-  var res = '';
-  for(var i=0,n=authors.length;i<n;i++) {
-    var link = '/search?q=' + authors[i].replace(/ /g, "+");
-    res += '<a href="' + link + '">' + authors[i] + '</a>';
-    if(i<n-1) res += ', ';
-  }
-  return res;
+  // var res = '';
+  // for(var i=0,n=authors.length;i<n;i++) {
+  //   var link = '/search?q=' + authors[i].replace(/ /g, "+");
+  //   res += '<a href="' + link + '">' + authors[i] + '</a>';
+  //   if(i<n-1) res += ', ';
+  // }
+  return authors;
 }
 
 function build_categories_html(tags) {
@@ -130,7 +130,7 @@ function addPapers(num, dynamic) {
     if(pdf_link === p.link) { var pdf_url = pdf_link } // replace failed, lets fall back on arxiv landing page
     else { var pdf_url = pdf_link + '.pdf'; }
     ldiv.append('a').attr('href', pdf_url).attr('target', '_blank').html('pdf');
-    
+
     // rank by tfidf similarity
     ldiv.append('br');
     var similar_span = ldiv.append('span').classed('sim', true).attr('id', 'sim'+p.pid).html('show similar');
@@ -209,7 +209,7 @@ function addPapers(num, dynamic) {
             elt.append('div').append('a').attr('href', 'https://twitter.com/' + tname + '/status/' + tid).attr('target', '_blank')
                                          .attr('style', 'font-weight:bold; color:#05f; text-decoration:none;').text('@' + tname + ':'); // show tweet source
             elt.append('div').text(txt) // show tweet text
-            imgelt.attr('style', 'border: 2px solid #05f;'); 
+            imgelt.attr('style', 'border: 2px solid #05f;');
           }
         }(tcontentdiv, t.text, t.screen_name, t.id, timgdiv)
         timgdiv.on('mouseover', act_fun);

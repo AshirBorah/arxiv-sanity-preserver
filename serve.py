@@ -179,7 +179,9 @@ def encode_json(ps, n=10, send_images=True, send_abstracts=True):
     struct['pid'] = idvv
     struct['rawpid'] = p['doi']
     struct['category'] = p['category']
-    struct['authors'] = [p['authors'].split(';')]
+    #struct['authors'] = [p['authors'].split(';')]
+    #print(p['authors'])
+    struct['authors'] = [p['authors']]
     struct['link'] = p['links']
     struct['in_library'] = 1 if p['doi'] in libids else 0
     if send_abstracts:
@@ -187,6 +189,7 @@ def encode_json(ps, n=10, send_images=True, send_abstracts=True):
     if send_images:
       struct['img'] = '/static/thumbs/' + idvv + '.pdf.jpg'
     #struct['tags'] = [t['term'] for t in p['tags']]
+    struct['tags'] = [p['category']]
 
     # render time information nicely
     #timestruct = dateutil.parser.parse(str(p['time_updated']))
@@ -250,7 +253,11 @@ def goaway():
 def intmain():
   vstr = request.args.get('vfilter', 'all')
   papers = [db[pid] for pid in DATE_SORTED_PIDS] # precomputed
+  # for paper in papers:
+  #     paper['authors'] == [paper['authors'].split(';')]
   papers = papers_filter_version(papers, vstr)
+  print(len(papers))
+  #print(papers[0])
   ctx = default_context(papers, render_format='recent',
                         msg='Showing most recent Biorxiv papers:')
   return render_template('main.html', **ctx)
@@ -680,6 +687,7 @@ if __name__ == "__main__":
   DATE_SORTED_PIDS = cache['date_sorted_pids']
   TOP_SORTED_PIDS = cache['top_sorted_pids']
   SEARCH_DICT = cache['search_dict']
+
 
   print('connecting to mongodb...')
   client = pymongo.MongoClient()

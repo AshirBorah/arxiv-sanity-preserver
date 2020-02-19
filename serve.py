@@ -189,7 +189,7 @@ def encode_json(ps, n=10, send_images=True, send_abstracts=True):
       struct['abstract'] = p['abstract']
     if send_images:
       #struct['img'] = '/static/thumbs/' + idvv + '.pdf.jpg'
-      struct['img'] = p['links'].split('/')[-1] + '.jpg'
+      struct['img'] = '/static/thumbs/' + p['links'].split('/')[-1] + '.jpg'
     #struct['tags'] = [t['term'] for t in p['tags']]
     struct['tags'] = [p['category']]
 

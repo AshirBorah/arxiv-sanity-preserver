@@ -126,10 +126,12 @@ def papers_from_library():
   if g.user:
     # user is logged in, lets fetch their saved library data
     uid = session['user_id']
+    print(uid)
     user_library = query_db('''select * from library where user_id = ?''', [uid])
+    print(user_library)
     libids = [strip_version(x['paper_id']) for x in user_library]
     out = [db[x] for x in libids]
-    out = sorted(out, key=lambda k: k['updated'], reverse=True)
+    out = sorted(out, key=lambda k: k['date'], reverse=True)
   return out
 
 def papers_from_svm(recent_days=None):
@@ -146,11 +148,12 @@ def papers_from_svm(recent_days=None):
 
     plist = user_sim[uid]
     out = [db[x] for x in plist if not x in libids]
+    print(out)
 
     if recent_days is not None:
       # filter as well to only most recent papers
       curtime = int(time.time()) # in seconds
-      out = [x for x in out if curtime - x['time_published'] < recent_days*24*60*60]
+      out = [x for x in out if curtime - x['time_updated'] < recent_days*24*60*60]
 
   return out
 
@@ -168,6 +171,7 @@ def encode_json(ps, n=10, send_images=True, send_abstracts=True):
     # user is logged in, lets fetch their saved library data
     uid = session['user_id']
     user_library = query_db('''select * from library where user_id = ?''', [uid])
+    print("Login user id", uid)
     libids = {strip_version(x['paper_id']) for x in user_library}
 
   ret = []
@@ -454,7 +458,9 @@ def review():
 
   idvv = request.form['pid'] # includes version
   if not isvalidid(idvv):
-    return 'NO' # fail, malformed id. weird.
+      print('paper id: '+idvv)
+      print('bad paper')
+      return 'NO' # fail, malformed id. weird.
   pid = strip_version(idvv)
   if not pid in db:
     return 'NO' # we don't know this paper. wat

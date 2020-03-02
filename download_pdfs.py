@@ -8,17 +8,27 @@ from multiprocessing.pool import ThreadPool
 import threading
 import queue
 
+
 from utils import Config
 
 def download_pdf(pid,j):
   global numtot
   global numok
   pdf_url = j['links']
-  print(pdf_url)
   #assert len(pdfs) == 1
+  #print(pdf_url.split('/'))
   basename = pdf_url.split('/')[-1]
-  print(basename)
+  #print(basename[0]+'/'+basename[1])
+  #basename = j['doi']+'v'+str(j['version'])
+  print("Basename "+basename)
+
   fname = os.path.join(Config.pdf_dir, basename)
+  directory = fname.rsplit('/',1)[0]
+
+  print('dir '+directory)
+
+  if not os.path.exists(directory):
+      os.makedirs(directory)
 
   # try retrieve the pdf
   numtot += 1

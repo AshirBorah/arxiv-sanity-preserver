@@ -100,8 +100,11 @@ if __name__ == "__main__":
 
           entry = add_pdf_url_to_record(entry)
           # extract just the raw arxiv id and version for this paper
+
           entry_doi = entry['doi']
           entry['version'] = int(entry['version'])
+          print(entry)
+          break
 
           # add to our database if we didn't have it before, or if this is a new version
           if not entry['doi'] in db or int(entry['version']) > int(db[entry_doi]['version']):
@@ -125,7 +128,7 @@ if __name__ == "__main__":
 
       print('Sleeping for %i seconds' % (args.wait_time , ))
       time.sleep(args.wait_time + random.uniform(0, 1))
-	
+
       if num_added_total >0 and index%5000==0:
         print('Saving database with %d papers to %s' % (len(db), Config.db_path))
         safe_pickle_dump(db, Config.db_path)

@@ -23,7 +23,7 @@ txt_paths, pids = [], []
 n = 0
 for pid,j in db.items():
   n += 1
-  idvv = '%sv%d' % (j['doi'].split('/')[-1], int(j['version']))
+  idvv = '%sv%d' % (j['doi'], int(j['version']))
   txt_path = os.path.join('data', 'txt', idvv) + '.full.pdf.txt'
   if os.path.isfile(txt_path): # some pdfs dont translate to txt
     with open(txt_path, 'r') as f:

@@ -98,6 +98,7 @@ def papers_search(qraw):
 
 def papers_similar(pid):
   rawpid = strip_version(pid)
+  print(rawpid)
 
   # check if we have this paper at all, otherwise return empty list
   if not rawpid in db:
@@ -148,12 +149,11 @@ def papers_from_svm(recent_days=None):
 
     plist = user_sim[uid]
     out = [db[x] for x in plist if not x in libids]
-    print(out)
 
     if recent_days is not None:
       # filter as well to only most recent papers
       curtime = int(time.time()) # in seconds
-      out = [x for x in out if curtime - x['time_updated'] < recent_days*24*60*60]
+      out = [x for x in out if curtime - x['date'] < recent_days*24*60*60]
 
   return out
 
@@ -234,8 +234,10 @@ def default_context(papers, **kws):
       if not entry:
         lib_count = query_db('''select count(*) from library where user_id = ?''', [uid], one=True)
         lib_count = lib_count['count(*)']
-        if lib_count > 0: # user has some items in their library too
-          show_prompt = 'yes'
+        #if lib_count > 0: # user has some items in their library too
+        #remove prompt for now
+          #show_prompt = 'yes'
+
   except Exception as e:
     print(e)
 
@@ -267,8 +269,9 @@ def intmain():
                         msg='Showing most recent Biorxiv papers:')
   return render_template('main.html', **ctx)
 
-@app.route("/<request_pid>")
-def rank(request_pid=None):
+@app.route("/<folder>/<request_pid>")
+def rank(request_pid=None, folder=None):
+  request_pid='{}/{}'.format(folder,request_pid)
   if not isvalidid(request_pid):
     return '' # these are requests for icons, things like robots.txt, etc
   papers = papers_similar(request_pid)
@@ -312,7 +315,7 @@ def comment():
   try:
     pid = request.form['pid']
     if not pid in db: raise Exception("invalid pid")
-    version = db[pid]['_version'] # most recent version of this paper
+    version = db[pid]['version'] # most recent version of this paper
   except Exception as e:
     print(e)
     return 'bad pid. This is most likely Andrej\'s fault.'

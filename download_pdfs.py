@@ -20,12 +20,12 @@ def download_pdf(pid,j):
   basename = pdf_url.split('/')[-1]
   #print(basename[0]+'/'+basename[1])
   #basename = j['doi']+'v'+str(j['version'])
-  print("Basename "+basename)
+  #print("Basename "+basename)
 
   fname = os.path.join(Config.pdf_dir, basename)
   directory = fname.rsplit('/',1)[0]
 
-  print('dir '+directory)
+  #print('dir '+directory)
 
   if not os.path.exists(directory):
       os.makedirs(directory)

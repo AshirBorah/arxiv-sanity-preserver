@@ -88,6 +88,7 @@ if __name__ == "__main__":
 
   num_added = 0
   num_skipped = 0
+  num_updated = 0
 
   for index in range(args.start_index,total_responses,100):
       query = '%s/%s/%i' % (args.start_date,args.end_date,index)
@@ -103,20 +104,31 @@ if __name__ == "__main__":
 
           entry_doi = entry['doi']
           entry['version'] = int(entry['version'])
-          print(entry)
-          break
+          # print(entry)
 
           # add to our database if we didn't have it before, or if this is a new version
-          if not entry['doi'] in db or int(entry['version']) > int(db[entry_doi]['version']):
+          if not entry['doi'] in db :
+            entry['time_created'] = entry['date']
             db[entry_doi] = entry
-            print('Updated %s added v%s' % (entry['title'], entry['version']))
+
+            print('Added %s, v%s' % (entry['title'], entry['version']))
             num_added += 1
             num_added_total += 1
+
+          # So the entry is present
+          elif int(entry['version']) > int(db[entry_doi]['version']):
+            entry['time_created'] = db[entry_doi]['time_created']
+            db[entry_doi] = entry
+
+            print('Updated %s added v%s' % (entry['title'], entry['version']))
+            num_updated += 1
+            num_added_total += 1
+
           else:
             num_skipped += 1
 
       # print some information
-      print('Added %d papers of %d in this query, already had %d. Current index %d' % (num_added, total_responses, num_skipped, index))
+      print('Added %d papers and updated %d of %d in this query, already had %d. Current index %d' % (num_added, num_updated, total_responses, num_skipped, index))
 
       if len(response['collection']) == 0:
         print('Received no results from arxiv. Rate limiting? Exiting. Restart later maybe.')

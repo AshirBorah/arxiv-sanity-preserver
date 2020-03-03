@@ -162,7 +162,6 @@ def papers_filter_version(papers, v):
     return papers # noop
   intv = int(v)
   filtered = [p for p in papers if p['version'] == intv]
-  print(filtered)
   return filtered
 
 def encode_json(ps, n=10, send_images=True, send_abstracts=True):
@@ -171,7 +170,6 @@ def encode_json(ps, n=10, send_images=True, send_abstracts=True):
     # user is logged in, lets fetch their saved library data
     uid = session['user_id']
     user_library = query_db('''select * from library where user_id = ?''', [uid])
-    print("Login user id", uid)
     libids = {strip_version(x['paper_id']) for x in user_library}
 
   ret = []
@@ -263,7 +261,6 @@ def intmain():
   # for paper in papers:
   #     paper['authors'] == [paper['authors'].split(';')]
   papers = papers_filter_version(papers, vstr)
-  print(len(papers))
   #print(papers[0])
   ctx = default_context(papers, render_format='recent',
                         msg='Showing most recent Biorxiv papers:')
@@ -473,7 +470,6 @@ def review():
   # check this user already has this paper in library
   record = query_db('''select * from library where
           user_id = ? and paper_id = ?''', [uid, pid], one=True)
-  print(record)
 
   ret = 'NO'
   if record:
@@ -669,7 +665,6 @@ if __name__ == "__main__":
   parser.add_argument('-r', '--num_results', dest='num_results', type=int, default=200, help='number of results to return per query')
   parser.add_argument('--port', dest='port', type=int, default=5000, help='port to serve on')
   args = parser.parse_args()
-  print(args)
 
   if not os.path.isfile(Config.database_path):
     print('did not find as.db, trying to create an empty database from schema.sql...')

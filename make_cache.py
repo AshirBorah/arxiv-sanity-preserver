@@ -39,7 +39,6 @@ print('computing min/max time for all papers...')
 tts = [time.mktime(dateutil.parser.parse(p['date']).timetuple()) for pid,p in db.items()]
 ttmin = min(tts)*1.0
 ttmax = max(tts)*1.0
-print(ttmax,ttmin)
 for pid,p in db.items():
   tt = time.mktime(dateutil.parser.parse(p['date']).timetuple())
   p['tscore'] = (tt-ttmin)/(ttmax-ttmin)
@@ -88,8 +87,6 @@ print('building an index for faster search...')
 search_dict = {}
 for pid,p in db.items():
   dict_title = makedict(p['title'], forceidf=5, scale=3)
-  print(p['authors'])
-  print(type(p['authors']))
   #dict_authors = makedict(' '.join(x['name'] for x in p['authors']), forceidf=5)
   dict_authors = makedict(p['authors'].replace(';',''), forceidf=5)
   # dict_categories = {x['term'].lower():5 for x in p['tags']}

@@ -11,8 +11,8 @@ class Config(object):
     # main paper information repo file
     db_path = 'db.p'
     # intermediate processing folders
-    pdf_dir = os.path.join('data', 'pdf')
-    txt_dir = os.path.join('data', 'txt')
+    pdf_dir = os.path.join('data', 'pdf', '10.1101')
+    txt_dir = os.path.join('data', 'txt', '10.1101')
     thumbs_dir = os.path.join('static', 'thumbs')
     # intermediate pickles
     tfidf_path = 'tfidf.p'
@@ -97,8 +97,11 @@ def strip_version(idstr):
     return parts[0]
 
 # "1511.08198v1" is an example of a valid arxiv id that we accept
+# "10.1101/2020.01.31.928762v1"
+# "10.1101/836239v2"
 def isvalidid(pid):
-  return re.match('^\d+\.\d+(v\d+)?$', pid)
+   return re.match('^\d+.\d+\/\d+\.\d+\.\d+\.\d+(v\d+)?$|^\d+.\d+\/\d+(v\d+)?$', pid)
+   #return re.match('^\d+\.\d+(v\d+)?$', pid)
 
 def add_pdf_url_to_record(record):
    record['links'] = 'https://www.biorxiv.org/content/'+record['doi']+'v'+record['version']+'.full.pdf'

@@ -145,7 +145,7 @@ function addPapers(num, dynamic) {
                       .append('a').attr('href', 'discuss?id='+strip_version(p.pid)).attr('style', 'color:'+discuss_color).html(discuss_text);
     ldiv.append('br');
 
-    var lib_state_img = p.in_library === 1 ? 'static/saved.png' : 'static/save.png';
+    var lib_state_img = p.in_library === 1 ? '/static/saved.png' : '/static/save.png';
     var saveimg = ldiv.append('img').attr('src', lib_state_img)
                     .classed('save-icon', true)
                     .attr('title', 'toggle save paper to library (requires login)')

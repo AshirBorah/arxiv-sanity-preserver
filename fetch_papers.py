@@ -109,6 +109,7 @@ if __name__ == "__main__":
           # add to our database if we didn't have it before, or if this is a new version
           if not entry['doi'] in db :
             entry['time_created'] = entry['date']
+            entry['time_updated'] = entry['date']
             db[entry_doi] = entry
 
             print('Added %s, v%s' % (entry['title'], entry['version']))
@@ -118,6 +119,7 @@ if __name__ == "__main__":
           # So the entry is present
           elif int(entry['version']) > int(db[entry_doi]['version']):
             entry['time_created'] = db[entry_doi]['time_created']
+            entry['time_updated'] = entry['date']
             db[entry_doi] = entry
 
             print('Updated %s added v%s' % (entry['title'], entry['version']))
@@ -139,7 +141,7 @@ if __name__ == "__main__":
         break
 
       print('Sleeping for %i seconds' % (args.wait_time , ))
-      time.sleep(args.wait_time + random.uniform(0, 1))
+      time.sleep(args.wait_time + random.uniform(0, 3))
 
       if num_added_total >0 and index%5000==0:
         print('Saving database with %d papers to %s' % (len(db), Config.db_path))

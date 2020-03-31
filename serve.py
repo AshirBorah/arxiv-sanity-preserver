@@ -153,8 +153,7 @@ def papers_from_svm(recent_days=None):
     if recent_days is not None:
       # filter as well to only most recent papers
       curtime = int(time.time()) # in seconds
-      out = [x for x in out if curtime - x['date'] < recent_days*24*60*60]
-
+      out = [x for x in out if curtime - x['time_updated'] < recent_days*24*60*60]
   return out
 
 def papers_filter_version(papers, v):
@@ -414,7 +413,7 @@ def top():
   tt = legend.get(ttstr, 7)
   curtime = int(time.time()) # in seconds
   top_sorted_papers = [db[p] for p in TOP_SORTED_PIDS]
-  papers = [p for p in top_sorted_papers if curtime - p['time_published'] < tt*24*60*60]
+  papers = [p for p in top_sorted_papers if curtime - p['time_updated'] < tt*24*60*60]
   papers = papers_filter_version(papers, vstr)
   ctx = default_context(papers, render_format='top',
                         msg='Top papers based on people\'s libraries:')
@@ -519,7 +518,7 @@ def friends():
         papers = [db[x] for x in keys]
         # finally filter by date
         curtime = int(time.time()) # in seconds
-        papers = [x for x in papers if curtime - x['time_published'] < tt*24*60*60]
+        papers = [x for x in papers if curtime - x['time_updated'] < tt*24*60*60]
         # trim at like 100
         if len(papers) > 100: papers = papers[:100]
         # trim counts as well correspondingly

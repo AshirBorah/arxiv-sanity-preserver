@@ -16,6 +16,8 @@ from flask_limiter import Limiter
 from werkzeug.security import check_password_hash, generate_password_hash
 import pymongo
 
+from pdb import set_trace
+
 from utils import safe_pickle_dump, strip_version, isvalidid, Config
 
 # various globals
@@ -256,6 +258,7 @@ def goaway():
 @app.route("/")
 def intmain():
   vstr = request.args.get('vfilter', 'all')
+  #set_trace()
   papers = [db[pid] for pid in DATE_SORTED_PIDS] # precomputed
   # for paper in papers:
   #     paper['authors'] == [paper['authors'].split(';')]

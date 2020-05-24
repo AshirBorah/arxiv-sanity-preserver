@@ -1,4 +1,4 @@
-python fetch_papers.py --start_date 2012-01-01 --end_date 2020-04-01 --wait-time 3
+python fetch_papers.py --start_date 2020-03-25 --end_date 2020-03-30 --wait-time 3
 python download_pdfs.py
 python parse_pdf_to_text.py
 python thumb_pdf.py

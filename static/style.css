@@ -2,14 +2,14 @@ body {
 	margin: 0;
 	padding: 0;
 	font-family: arial;
-	background-color: #FFFFFF;
+	background-color: pink;
 }
 .as {
 	font-size: 14px;
-	color: #900;
+	color: pink;
 }
 .cs {
-	color: #009;
+	color:pink;
 	font-size: 14px;
 }
 .ts {
@@ -41,7 +41,7 @@ body {
 	font-size: 14px;
 }
 .ccs {
-	color: #000;
+	color: pink;
 	font-size: 12px;
 }
 .tt {
@@ -278,7 +278,6 @@ ul.flashes li {
 	border-top: 1px solid #AAA;
 
 	padding: 10px 5px 10px 5px;
-	background-color: #CCE;
 }
 #pagebar a:link{ text-decoration: none; color: #338;}
 #pagebar a:visited{ text-decoration: none; color: #338;}

@@ -1,5 +1,9 @@
 drop table if exists user;
 create table user (
+  first_name text not null,
+  last_name text not null,
+  e_mail text not null,
+  institution text not null,
   user_id integer primary key autoincrement,
   username text not null,
   pw_hash text not null,

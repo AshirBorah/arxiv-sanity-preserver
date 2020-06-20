@@ -12,6 +12,7 @@ import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles, ThemeProvider } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
+import MainBar from "../Components/MainBar";
 
 import { Redirect } from "react-router-dom";
 import "../routes";
@@ -55,15 +56,11 @@ class Login extends Component {
   async handleClick(event) {
     event.preventDefault();
     const logged = await userLogin(this.state);
-    console.log("Is logged: ", logged);
-
     if (logged) {
-      console.log("TOKEN: ", localStorage.getItem("token"));
       this.props.history.push(
         `/account/${this.state.username}${localStorage.getItem("token")}`
       );
     }
-    console.log(logged);
   }
 
   handleChange(e) {
@@ -77,8 +74,11 @@ class Login extends Component {
     return (
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <Container>
-          <Card component="main" maxWidth="xs">
+        <div>
+          <MainBar></MainBar>
+        </div>
+        <Container component="main" maxWidth="xs">
+          <Card>
             <CardContent className={classes.paper}>
               <Avatar className={classes.avatar}>
                 <LockOutlinedIcon />

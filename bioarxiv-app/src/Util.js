@@ -28,7 +28,6 @@ export async function userLogin(user) {
     })
     .then((data) => {
       if (data.data.token) {
-        localStorage.setItem("token", JSON.stringify(data.data.token));
         return data.data.token;
       } else {
         alert("Invalid username or password.");
@@ -38,8 +37,15 @@ export async function userLogin(user) {
   return logged_in;
 }
 
+export async function getCurrentUserData() {
+  let userData = await axios.get("/currentuser").then((response) => {
+    return response;
+  });
+  console.log("USER DATA : ", userData);
+  return userData.data.user;
+}
+
 export async function getUserData(username) {
-  console.log(username);
   const userData = await axios
     .get("/user", {
       params: {
@@ -47,7 +53,6 @@ export async function getUserData(username) {
       },
     })
     .then((response) => {
-      console.log(response);
       if (response) {
         return response.data;
       } else {
@@ -79,6 +84,25 @@ export async function sendFollowRequest(user) {
         return null;
       }
     });
+}
+
+export async function getTopPapers() {
+  const topPapers = await axios
+    .get("/top", {
+      params: {
+        timefilter: "week",
+        vfilter: "all",
+      },
+    })
+    .then((response) => {
+      if (response) {
+        return response.data;
+      } else {
+        return null;
+      }
+    });
+  console.log(topPapers);
+  return topPapers;
 }
 
 export default Copyright;

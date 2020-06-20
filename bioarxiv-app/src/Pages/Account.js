@@ -6,7 +6,7 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import { makeStyles, ThemeProvider, fade } from "@material-ui/core/styles";
 import Avatar from "@material-ui/core/Avatar";
 import SearchIcon from "@material-ui/icons/Search";
-import { getUserData, sendFollowRequest } from "../Util.js";
+import { getUserData, sendFollowRequest, getCurrentUserData } from "../Util.js";
 import Button from "@material-ui/core/Button";
 import {
   Container,
@@ -65,33 +65,32 @@ class Account extends Component {
     this.state = {
       firstName: "",
       lastName: "",
-      about: "",
-      followers: [],
-      following: [],
-      email: "",
       username: "",
       institution: "",
-      followRequest: "",
+      email: "",
+      followers: [],
+      following: [],
+      toFollow: "",
     };
     this.followRequest = this.followRequest.bind(this);
     this.setFollowRequest = this.setFollowRequest.bind(this);
   }
 
   componentDidMount() {
-    const token = localStorage.getItem("token");
-    const user = jwt_decode(token).identity;
-    const userData = getUserData(user.username);
-    this.setState({
-      firstName: user.firstName,
-      lastName: user.lastName,
-      username: user.username,
-      institution: user.institution,
-      email: user.email,
-      followers: userData.followers,
-      following: userData.following,
-      toFollow: "",
+    getCurrentUserData().then((user) => {
+      this.setState({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        username: user.username,
+        institution: user.institution,
+        email: user.email,
+        followers: user.followers,
+        following: user.following,
+        toFollow: "",
+      });
     });
   }
+
   followRequest(event) {
     event.preventDefault();
     sendFollowRequest(this.state.toFollow);

@@ -100,27 +100,13 @@ def get_username(user_id):
 @app.before_request
 def before_request():
     # this will always request database connection, even if we dont end up using it ;\
-    try:
-        g.db = connect_db()
-    except:
-        print("OOPS")
+    g.db = connect_db()
     # retrieve user object from the database if user_id is set
     g.user = None
-
-    try:
-        s = request.cookies.get("session")
-        print("USER ID:", request.cookies.get("user_id"))
-        print("SESSION", request.cookies.get("session"))
-        print("USER: ", session)
-        uid = s
-        if uid:
-            print("HERE")
-            g.user = query_db(
-                "select * from user where user_id = ?", session["user_id"], one=True
-            )
-            print("USER: ", g.user)
-    except:
-        print("Error")
+    if "user_id" in session:
+        g.user = query_db(
+            "select * from user where user_id = ?", [session["user_id"]], one=True
+        )
 
 
 @app.teardown_request
@@ -340,8 +326,9 @@ def goaway():
 ####################################################################################
 #################### MAIN PAGE MANAGEMENT/ PAPER MANAGEMENT ######################
 ####################################################################################
-@app.route("/")
-def intmain():
+@app.route("/", defaults={"path": ""})
+@app.route("/<path:path>")
+def intmain(path):
     vstr = request.args.get("vfilter", "all")
     # set_trace()
     papers = [db[pid] for pid in DATE_SORTED_PIDS]  # precomputed
@@ -352,7 +339,7 @@ def intmain():
     ctx = default_context(
         papers, render_format="recent", msg="Showing most recent Biorxiv papers:"
     )
-    return render_template("main.html", **ctx)
+    return render_template("index.html", flask_token="Hello   world")
 
 
 @app.route("/<folder>/<request_pid>")
@@ -450,6 +437,8 @@ def recommend():
 @app.route("/top", methods=["GET"])
 def top():
     """ return top papers """
+    if not g.user:
+        return jsonify({"error": "Need to be logged in to get top papers."})
     ttstr = request.args.get("timefilter", "week")  # default is week
     vstr = request.args.get("vfilter", "all")  # default is all (no filter)
     legend = {
@@ -463,14 +452,16 @@ def top():
     tt = legend.get(ttstr, 7)
     curtime = int(time.time())  # in seconds
     top_sorted_papers = [db[p] for p in TOP_SORTED_PIDS]
+    print(top_sorted_papers)
     papers = [
         p for p in top_sorted_papers if curtime - p["time_updated"] < tt * 24 * 60 * 60
     ]
     papers = papers_filter_version(papers, vstr)
+    print(papers)
     ctx = default_context(
         papers, render_format="top", msg="Top papers based on people's libraries:"
     )
-    return render_template("main.html", **ctx)
+    return jsonify({"papers": papers})
 
 
 @app.route("/toptwtr", methods=["GET"])
@@ -667,8 +658,7 @@ def login():
                 }
             )
             # password is correct, log in the user
-            db.session.add({"user_id": get_user_id(username)})
-            session.commit()
+            session["user_id"] = get_user_id(username)
             return jsonify({"token": access_token})
         else:
             # incorrect password
@@ -711,11 +701,10 @@ def signup():
         )
         user_id = g.db.execute("select last_insert_rowid()").fetchall()[0][0]
         g.db.commit()
-        print("HERE")
         session["user_id"] = user_id
     #  print(session.get('user_id'))
     # flash('New account %s created' + [req.get('username')])
-    return "login"
+    return redirect(url_for("login"))
 
 
 # LOGOUT
@@ -723,30 +712,21 @@ def signup():
 
 @app.route("/logout")
 def logout():
-
     session.pop("user_id", None)
     flash("You were logged out")
     return redirect(url_for("intmain"))
 
 
-# GET USER DETAILS
-# Works for both the current user as well for other users
-@app.route("/user", methods=["GET"])
-@cross_origin(supports_credentials=True)
-def getUser():
-    username = request.args.get("username")
+def getUserByUsername(username):
     followers = []
     following = []
-    # fetch all followers/following of the logged in user
     user = query_db("""select * from user where username=?""", [username], one=True)
-
     following_db = list(follow_collection.find({"who": username}))
     for e in following_db:
         following.append({"user": e["whom"], "active": e["active"]})
     followers_db = list(follow_collection.find({"whom": username}))
     for e in followers_db:
         followers.append({"user": e["who"], "active": e["active"]})
-
     return {
         "user": {
             "followers": followers,
@@ -761,12 +741,29 @@ def getUser():
     }
 
 
+# GET USER DETAILS
+# Works for both the current user as well for other users
+@app.route("/user/<username>/")
+@cross_origin(supports_credentials=True)
+def getUser(username):
+    return getUserByUsername(username)
+
+
+# GET USER DETAILS
+# Works for both the current user as well for other users
+@app.route("/currentuser", methods=["GET"])
+def getCurrentUser():
+    print(request.get_json())
+    if g.user:
+        return getUserByUsername(username=get_username(session["user_id"]))
+    return jsonify({"error": "Fail to return user data."})
+
+
 @app.route("/requestfollow", methods=["POST"])
 def requestfollow():
     req = request.get_json().get("body")
     toFollow = req["toFollow"]
     if g.user:
-        print("HERE")
         # add an entry: this user is requesting to follow a second user
         who = get_username(session["user_id"])
         whom = toFollow
@@ -779,8 +776,6 @@ def requestfollow():
                 "active": 0,
                 "time_request": int(time.time()),
             }
-            print("adding request follow:")
-            print(e)
             follow_collection.insert_one(e)
 
     return jsonify({"error": "No such user"})

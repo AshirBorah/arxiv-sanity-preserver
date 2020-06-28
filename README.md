@@ -15,7 +15,18 @@ There are two large parts of the code:
 
 ### Dependencies
 
-Several: You will need numpy, feedparser (to process xml files), scikit learn (for tfidf vectorizer, training of SVM), flask (for serving the results), flask_limiter, and tornado (if you want to run the flask server in production). Also dateutil, and scipy. And sqlite3 for database (accounts, library support, etc.). Most of these are easy to get through `pip`, e.g.:
+You will need:
+ 1. numpy
+ 1. feedparser (to process xml files)
+ 1. scikit learn (for tfidf vectorizer, training of SVM)
+ 1. flask (for serving the results)
+ 1. flask_limiter
+ 1. tornado (if you want to run the flask server in production)
+ 1. dateutil
+ 1. scipy
+ 1. sqlite3 - for database (accounts, library support, etc.)
+
+Most of these are easy to get through `pip`, e.g.:
 
 ```bash
 $ virtualenv env                # optional: use virtualenv

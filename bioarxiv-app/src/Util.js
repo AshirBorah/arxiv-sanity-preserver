@@ -41,7 +41,6 @@ export async function getCurrentUserData() {
   let userData = await axios.get("/currentuser").then((response) => {
     return response;
   });
-  console.log("USER DATA : ", userData);
   return userData.data.user;
 }
 
@@ -67,7 +66,6 @@ export async function logout() {
 }
 
 export async function sendFollowRequest(user) {
-  console.log("USER", user);
   await axios
     .post("/requestfollow", {
       method: ["POST"],
@@ -101,8 +99,29 @@ export async function getTopPapers() {
         return null;
       }
     });
-  console.log(topPapers);
   return topPapers;
+}
+
+export async function getMostRecentPapers() {
+  const topPapers = await axios
+    .get("/recent", {
+      params: {
+        vfilter: "all",
+      },
+    })
+    .then((response) => {
+      if (response) {
+        return response.data;
+      } else {
+        return null;
+      }
+    });
+  return topPapers.papers.papers;
+}
+
+export function truncateText(text, limit) {
+  if (text.length < limit + 3) return text;
+  return text.substring(0, limit) + "...";
 }
 
 export default Copyright;

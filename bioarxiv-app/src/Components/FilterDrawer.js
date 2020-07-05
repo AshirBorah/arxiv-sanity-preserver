@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
 import SearchIcon from "@material-ui/icons/Search";
 import Drawer from "@material-ui/core/Drawer";
 import List from "@material-ui/core/List";
@@ -24,7 +24,7 @@ import {
 
 const drawerWidth = 240;
 
-const classes = makeStyles((theme) => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
   },
@@ -44,7 +44,7 @@ const classes = makeStyles((theme) => ({
     },
   },
   searchIcon: {
-    color: theme.palette.primary.dark,
+    color: theme.palette.primary.light,
     padding: theme.spacing(0, 2),
     height: "100%",
     position: "absolute",
@@ -54,7 +54,7 @@ const classes = makeStyles((theme) => ({
     justifyContent: "center",
   },
   inputRoot: {
-    color: theme.palette.primary.dark,
+    color: theme.palette.primary.light,
   },
   inputInput: {
     padding: theme.spacing(1, 1, 1, 0),
@@ -83,74 +83,65 @@ const classes = makeStyles((theme) => ({
   },
 }));
 
-class FilterDrawer extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      open: false,
-    };
-    this.handleDrawerClose = this.handleDrawerClose.bind(this);
-  }
+export default function FilterDrawer(props) {
+  const [state, setState] = useState(props);
+  const classes = useStyles();
+  useEffect(() => {
+    setState(props);
+  }, [props]);
 
-  componentWillReceiveProps(nextProps) {
-    this.setState({ open: nextProps.open });
-  }
+  const handleDrawerClose = () => {
+    setState({ open: false });
+    props.toggleOpen(false);
+  };
 
-  handleDrawerClose() {
-    this.setState({ open: false });
-    this.props.toggleOpen(false);
-  }
-
-  render() {
-    return (
-      <ThemeProvider theme={theme}>
+  return (
+    <ThemeProvider theme={theme}>
+      <div className={classes.root}>
         <CssBaseline />
-        <div className={classes.root}>
-          <Drawer
-            width={240}
-            className={classes.drawer}
-            variant="persistent"
-            open={this.state.open}
-            classes={classes.drawerPaper}
-            anchor="left"
-          >
-            <div className={classes.drawerHeader}>
-              <IconButton onClick={this.handleDrawerClose}>
-                {theme.direction === "ltr" ? (
-                  <ChevronLeftIcon />
-                ) : (
-                  <ChevronRightIcon />
-                )}
-              </IconButton>
-            </div>
-            <div className={classes.search}>
-              <div className={classes.searchIcon}>
-                <SearchIcon />
-              </div>
-              <InputBase
-                placeholder="Search…"
-                classes={{
-                  root: classes.inputRoot,
-                  input: classes.inputInput,
-                }}
-                inputProps={{ "aria-label": "search" }}
-              />
-            </div>
-            <List>
-              {["Sort", "Friends", "Discussions", "Library"].map(
-                (text, index) => (
-                  <ListItem button key={text}>
-                    <ListItemText primary={text} />
-                  </ListItem>
-                )
+        <Drawer
+          className={classes.drawer}
+          variant="persistent"
+          open={state.open}
+          classes={{
+            paper: classes.drawerPaper,
+          }}
+          anchor="left"
+        >
+          <div className={classes.drawerHeader}>
+            <IconButton onClick={handleDrawerClose}>
+              {theme.direction === "ltr" ? (
+                <ChevronLeftIcon />
+              ) : (
+                <ChevronRightIcon />
               )}
-            </List>
-            <Divider />
-          </Drawer>
-        </div>
-      </ThemeProvider>
-    );
-  }
+            </IconButton>
+          </div>
+          <div className={classes.search}>
+            <div className={classes.searchIcon}>
+              <SearchIcon />
+            </div>
+            <InputBase
+              placeholder="Search…"
+              classes={{
+                root: classes.inputRoot,
+                input: classes.inputInput,
+              }}
+              inputProps={{ "aria-label": "search" }}
+            />
+          </div>
+          <List>
+            {["Sort", "Friends", "Discussions", "Library"].map(
+              (text, index) => (
+                <ListItem button key={text}>
+                  <ListItemText primary={text} />
+                </ListItem>
+              )
+            )}
+          </List>
+          <Divider />
+        </Drawer>
+      </div>
+    </ThemeProvider>
+  );
 }
-
-export default FilterDrawer;

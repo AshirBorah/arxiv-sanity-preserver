@@ -32,7 +32,7 @@ const t = createMuiTheme({
     divider: "rgba(3, 26, 38, 1)",
     background: {
       paper: "#d1ffea",
-      default: "#000000",
+      default: "#395983",
     },
     transitions: {
       easing: {

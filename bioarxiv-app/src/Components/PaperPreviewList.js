@@ -5,6 +5,7 @@ import Grid from "@material-ui/core/Grid";
 import theme from "../theme";
 import clsx from "clsx";
 import Container from "@material-ui/core/Container";
+import Pagination from "@material-ui/lab/Pagination";
 
 const drawerWidth = 240;
 const useStyles = makeStyles((theme) => ({
@@ -49,22 +50,22 @@ const useStyles = makeStyles((theme) => ({
     ...theme.mixins.toolbar,
     justifyContent: "flex-end",
   },
+  paginator: {
+    width: "100%",
+    position: "fixed",
+    justifyContent: "flex-start",
+    display: "flex",
+    alignItems: "center",
+  },
 }));
 
 export default function PaperPreviewList(props) {
   const classes = useStyles(theme);
   const [state, setState] = useState(props);
+
   useEffect(() => {
     setState(props);
   }, [props]);
-
-  const paperCards = state.papers.map((paper) => {
-    return (
-      <Grid item xs={12} sm={6} md={4} key={state.papers.indexOf(paper)}>
-        <PaperPreview paper={paper} />
-      </Grid>
-    );
-  });
 
   return (
     <ThemeProvider theme={theme}>
@@ -82,7 +83,19 @@ export default function PaperPreviewList(props) {
             justify="center"
             alignItems="flex-start"
           >
-            {paperCards}
+            {state.papers.map((paper) => {
+              return (
+                <Grid
+                  item
+                  xs={12}
+                  sm={6}
+                  md={4}
+                  key={state.papers.indexOf(paper)}
+                >
+                  <PaperPreview paper={paper} />
+                </Grid>
+              );
+            })}
           </Grid>
         </main>
       </div>

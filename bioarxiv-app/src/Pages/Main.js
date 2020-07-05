@@ -19,6 +19,7 @@ import Container from "@material-ui/core/Container";
 import PaperPreview from "../Components/PaperPreview.js";
 import Grid from "@material-ui/core/Grid";
 import classNames from "classnames";
+import Pagination from "@material-ui/lab/Pagination";
 
 const drawerWidth = 240;
 const classes = makeStyles((theme) => ({
@@ -123,6 +124,13 @@ const classes = makeStyles((theme) => ({
     ...theme.mixins.toolbar,
     justifyContent: "flex-end",
   },
+  paginator: {
+    color: theme.palette.secondary.main,
+    textColor: theme.palette.secondary.light,
+    display: "flex",
+    marginRight: theme.spacing(2),
+    justifyContent: "flex-end",
+  },
 }));
 
 class Main extends Component {
@@ -130,9 +138,11 @@ class Main extends Component {
     super(props);
     this.state = {
       papers: [],
+      curPagePapers: [],
       drawerOpen: false,
     };
     this.toggleDrawer = this.toggleDrawer.bind(this);
+    this.updatePagePapers = this.updatePagePapers.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -140,34 +150,56 @@ class Main extends Component {
       drawerOpen: nextProps.drawerOpen,
       papers: nextProps.papers,
     });
+    this.updatePagePapers(0, 24);
   }
 
   componentDidMount() {
     getMostRecentPapers().then((topPapers) => {
       this.setState({ papers: topPapers });
+      this.updatePagePapers(0, 24);
+    });
+  }
+
+  updatePagePapers(pageNumber, pageSize) {
+    this.setState({
+      curPagePapers: this.state.papers.slice(
+        pageNumber * pageSize,
+        (pageNumber + 1) * pageSize
+      ),
     });
   }
 
   toggleDrawer(value) {
     this.setState({ drawerOpen: value });
   }
+
   render() {
     return (
       <ThemeProvider theme={theme}>
-        <CssBaseline />
         <div className={classes.root}>
+          <CssBaseline />
           <MainBar
             position="fixed"
             open={this.state.drawerOpen}
             openDrawer={this.toggleDrawer}
           ></MainBar>
+
           <FilterDrawer
-            className={classes.drawer}
             toggleOpen={this.toggleDrawer}
             open={this.state.drawerOpen}
           ></FilterDrawer>
+
+          <Pagination
+            color="secondary"
+            className={classes.paginator}
+            count={Math.floor(this.state.papers.length / 24)}
+            onChange={(event, pageNumber) => {
+              this.updatePagePapers(pageNumber, 24);
+            }}
+          />
+
           <PaperPreviewList
-            papers={this.state.papers}
+            papers={this.state.curPagePapers}
             drawerOpen={this.state.drawerOpen}
           ></PaperPreviewList>
         </div>

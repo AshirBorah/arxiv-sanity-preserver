@@ -29,6 +29,7 @@ const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
+    backgroundColor: theme.palette.primary.main,
     transition: theme.transitions.create(["margin", "width"], {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
@@ -169,19 +170,14 @@ export default function MainBar(props) {
       onClose={handleMobileMenuClose}
     >
       <MenuItem>
-        <IconButton aria-label="show 4 new mails" color="inherit">
-          <Badge badgeContent={4} color="secondary">
-            <MailIcon />
-          </Badge>
-        </IconButton>
+        <IconButton aria-label="show 4 new mails" color="inherit"></IconButton>
         <p>Messages</p>
       </MenuItem>
       <MenuItem>
-        <IconButton aria-label="show 11 new notifications" color="inherit">
-          <Badge badgeContent={11} color="secondary">
-            <NotificationsIcon />
-          </Badge>
-        </IconButton>
+        <IconButton
+          aria-label="show 11 new notifications"
+          color="inherit"
+        ></IconButton>
         <p>Notifications</p>
       </MenuItem>
       <MenuItem onClick={handleProfileMenuOpen}>
@@ -209,7 +205,6 @@ export default function MainBar(props) {
   );
 
   const openDrawerHandler = () => {
-    console.log("OPEN DRAWER: ");
     setState({ open: true });
     props.openDrawer(true);
   };

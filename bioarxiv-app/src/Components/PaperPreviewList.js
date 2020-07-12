@@ -12,22 +12,6 @@ const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
   },
-  content: {
-    flexGrow: 1,
-    padding: theme.spacing(3),
-    transition: theme.transitions.create("margin", {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    marginLeft: -drawerWidth,
-  },
-  contentShift: {
-    transition: theme.transitions.create("margin", {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-    marginLeft: 0,
-  },
   appBar: {
     transition: theme.transitions.create(["margin", "width"], {
       easing: theme.transitions.easing.sharp,
@@ -49,13 +33,6 @@ const useStyles = makeStyles((theme) => ({
     // necessary for content to be below app bar
     ...theme.mixins.toolbar,
     justifyContent: "flex-end",
-  },
-  paginator: {
-    width: "100%",
-    position: "fixed",
-    justifyContent: "flex-start",
-    display: "flex",
-    alignItems: "center",
   },
 }));
 
@@ -92,7 +69,7 @@ export default function PaperPreviewList(props) {
                   md={4}
                   key={state.papers.indexOf(paper)}
                 >
-                  <PaperPreview paper={paper} />
+                  <PaperPreview style={{ height: "500px" }} paper={paper} />
                 </Grid>
               );
             })}

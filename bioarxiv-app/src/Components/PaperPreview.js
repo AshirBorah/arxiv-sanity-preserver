@@ -32,6 +32,7 @@ class PaperPreview extends Component {
     root: {
       width: "345px",
       height: "500px",
+      margin: "5px",
     },
     media: {
       height: 0,
@@ -47,9 +48,6 @@ class PaperPreview extends Component {
     expandOpen: {
       transform: "rotate(180deg)",
     },
-    avatar: {
-      backgroundColor: red[500],
-    },
   });
 
   handleExpandClick = () => {
@@ -58,8 +56,8 @@ class PaperPreview extends Component {
 
   render() {
     return (
-      <Container component="main" className={this.classes.root} xs>
-        <Card className={this.classes.root}>
+      <Container className={this.classes.root}>
+        <Card style={{ height: "280px", maxHeight: "350px", overflow: scroll }}>
           <CardHeader
             avatar={
               <Avatar aria-label="recipe" className={this.classes.avatar}>
@@ -123,6 +121,7 @@ class PaperPreview extends Component {
             </CardContent>
           </Collapse>
         </Card>
+        <div style={{ height: "10px" }}></div>
       </Container>
     );
   }

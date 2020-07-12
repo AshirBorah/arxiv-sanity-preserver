@@ -4,17 +4,17 @@ import { fade } from "@material-ui/core/styles";
 const t = createMuiTheme({
   palette: {
     // common: {},
-    type: "light",
+    type: "dark",
     primary: {
-      main: "#003056",
-      light: "#395983",
-      dark: "#00062d",
+      main: "#005563",
+      light: "#408291",
+      dark: "#002c39",
       contrastText: "#FFFFFF",
     },
     secondary: {
       main: "#d1ffea",
-      light: "#ffffff",
-      dark: "9fccb8",
+      light: "#5beacb",
+      dark: "#00866c",
       contrastText: "#000000",
     },
     // error: {},
@@ -24,15 +24,13 @@ const t = createMuiTheme({
     // grey: {},
     contrastThreshold: 3,
     tonalOffset: 0.5,
-    text: {
-      primary: "#003056",
-      secondary: "#395983",
-      disabled: "#00062d",
-    },
-    divider: "rgba(3, 26, 38, 1)",
+    // text: {
+    //   primary: "#d1ffea",
+    //   secondary: "#003056",
+    // },
     background: {
-      paper: "#d1ffea",
-      default: "#395983",
+      paper: "#408291",
+      default: "#002c39",
     },
     transitions: {
       easing: {

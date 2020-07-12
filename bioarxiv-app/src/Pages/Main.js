@@ -74,9 +74,9 @@ const classes = makeStyles((theme) => ({
   search: {
     position: "relative",
     borderRadius: theme.shape.borderRadius,
-    backgroundColor: theme.palette.primary.dark,
+    backgroundColor: fade(theme.palette.common.white, 0.15),
     "&:hover": {
-      backgroundColor: theme.palette.primary.light,
+      backgroundColor: fade(theme.palette.common.white, 0.25),
     },
     marginRight: theme.spacing(2),
     marginLeft: 0,
@@ -87,7 +87,6 @@ const classes = makeStyles((theme) => ({
     },
   },
   searchIcon: {
-    color: theme.palette.primary.dark,
     padding: theme.spacing(0, 2),
     height: "100%",
     position: "absolute",
@@ -96,9 +95,7 @@ const classes = makeStyles((theme) => ({
     alignItems: "center",
     justifyContent: "center",
   },
-  inputRoot: {
-    color: theme.palette.primary.dark,
-  },
+
   inputInput: {
     padding: theme.spacing(1, 1, 1, 0),
     // vertical padding + font size from searchIcon
@@ -125,11 +122,15 @@ const classes = makeStyles((theme) => ({
     justifyContent: "flex-end",
   },
   paginator: {
-    color: theme.palette.secondary.main,
-    textColor: theme.palette.secondary.light,
-    display: "flex",
-    marginRight: theme.spacing(2),
+    margin: "0px",
+    position: "absolute",
+    right: "10px",
     justifyContent: "flex-end",
+  },
+  paginatorRoot: {
+    marginRight: 0,
+    position: "absolute",
+    right: 0,
   },
 }));
 
@@ -188,16 +189,15 @@ class Main extends Component {
             toggleOpen={this.toggleDrawer}
             open={this.state.drawerOpen}
           ></FilterDrawer>
-
-          <Pagination
-            color="secondary"
-            className={classes.paginator}
-            count={Math.floor(this.state.papers.length / 24)}
-            onChange={(event, pageNumber) => {
-              this.updatePagePapers(pageNumber, 24);
-            }}
-          />
-
+          <div style={{ position: "absolute", right: "5px", margin: "5px" }}>
+            <Pagination
+              color="secondary"
+              count={Math.floor(this.state.papers.length / 24)}
+              onChange={(event, pageNumber) => {
+                this.updatePagePapers(pageNumber, 24);
+              }}
+            />
+          </div>
           <PaperPreviewList
             papers={this.state.curPagePapers}
             drawerOpen={this.state.drawerOpen}

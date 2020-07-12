@@ -169,10 +169,11 @@ def papers_from_library():
     if g.user:
         # user is logged in, lets fetch their saved library data
         uid = session["user_id"]
-        print(uid)
         user_library = query_db("""select * from library where user_id = ?""", [uid])
         print(user_library)
         libids = [strip_version(x["paper_id"]) for x in user_library]
+        print(libids)
+        print("PAPERS FROM LIBRARY")
         out = [db[x] for x in libids]
         out = sorted(out, key=lambda k: k["date"], reverse=True)
     return out
@@ -257,7 +258,7 @@ def encode_json(ps, n=10, send_images=True, send_abstracts=True):
         #     struct['originally_published_time'] = '%s/%s/%s' % (timestruct.month, timestruct.day, timestruct.year)
 
         # fetch amount of discussion on this paper
-        struct["num_discussion"] = comments.count({"pid": p["doi"]})
+        struct["num_discussion"] = comments.count_documents({"pid": p["doi"]})
 
         # arxiv comments from the authors (when they submit the paper)
         cc = p.get("arxiv_comment", "")
@@ -276,7 +277,8 @@ def encode_json(ps, n=10, send_images=True, send_abstracts=True):
 
 def default_context(papers, **kws):
     top_papers = encode_json(papers, args.num_results)
-
+    print(top_papers)
+    print("CONTEXT")
     # prompt logic
     show_prompt = "no"
     try:
@@ -452,16 +454,28 @@ def top():
     tt = legend.get(ttstr, 7)
     curtime = int(time.time())  # in seconds
     top_sorted_papers = [db[p] for p in TOP_SORTED_PIDS]
-    print(top_sorted_papers)
     papers = [
         p for p in top_sorted_papers if curtime - p["time_updated"] < tt * 24 * 60 * 60
     ]
     papers = papers_filter_version(papers, vstr)
-    print(papers)
     ctx = default_context(
         papers, render_format="top", msg="Top papers based on people's libraries:"
     )
-    return jsonify({"papers": papers})
+    return render_template("index.html", **ctx)
+
+
+@app.route("/recent", methods=["GET"])
+def recent():
+    """ return top papers """
+    if not g.user:
+        return jsonify({"error": "Need to be logged in to get top papers."})
+    vstr = request.args.get("vfilter", "all")  # default is all (no filter)
+    date_sorted_papers = [db[p] for p in DATE_SORTED_PIDS]
+    papers = papers_filter_version(date_sorted_papers, vstr)
+    ctx = default_context(
+        papers, render_format="top", msg="Top papers based on people's libraries:"
+    )
+    return jsonify({"papers":ctx})
 
 
 @app.route("/toptwtr", methods=["GET"])
@@ -565,6 +579,7 @@ def toggletag():
 def library():
     """ render user's library """
     papers = papers_from_library()
+    print(papers)
     # cap at 500 papers in someone's library. that's a lot!
     ret = encode_json(papers, 500)
     if g.user:
@@ -671,7 +686,6 @@ def login():
 
 @app.route("/signup", methods=["POST"])
 def signup():
-    print("SIGNUP")
     req = request.get_json().get("body")
     print(req)
     if get_user_id(req.get("username")) is not None:
@@ -686,7 +700,6 @@ def signup():
     else:
         # create account and log in
         creation_time = int(time.time())
-        print("HERE 1")
         g.db.execute(
             """insert into user (first_name, last_name, e_mail, institution, username, pw_hash, creation_time) values (?, ?, ?, ?, ?, ?, ?)""",
             [
@@ -753,7 +766,6 @@ def getUser(username):
 # Works for both the current user as well for other users
 @app.route("/currentuser", methods=["GET"])
 def getCurrentUser():
-    print(request.get_json())
     if g.user:
         return getUserByUsername(username=get_username(session["user_id"]))
     return jsonify({"error": "Fail to return user data."})

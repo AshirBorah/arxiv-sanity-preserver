@@ -9,6 +9,7 @@ import CardActions from "@material-ui/core/CardActions";
 import Collapse from "@material-ui/core/Collapse";
 import Avatar from "@material-ui/core/Avatar";
 import IconButton from "@material-ui/core/IconButton";
+import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import { red } from "@material-ui/core/colors";
 import FavoriteIcon from "@material-ui/icons/Favorite";
@@ -18,6 +19,11 @@ import MoreVertIcon from "@material-ui/icons/MoreVert";
 import { withStyles } from "@material-ui/styles";
 import { Container } from "@material-ui/core";
 import { truncateText } from "../Util.js";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogTitle from "@material-ui/core/DialogTitle";
 
 class PaperPreview extends Component {
   constructor(props) {
@@ -28,6 +34,9 @@ class PaperPreview extends Component {
     };
   }
 
+  componentWillReceiveProps(nextProps) {
+    this.setState({ expanded: nextProps.expanded, paper: nextProps.paper });
+  }
   classes = (theme) => ({
     root: {
       width: "345px",
@@ -51,13 +60,54 @@ class PaperPreview extends Component {
   });
 
   handleExpandClick = () => {
-    this.setState({ expanded: !this.state.expanded });
+    this.setState({ expanded: true });
   };
+
+  handleClose = () => {
+    this.setState({ expanded: false });
+  };
+
+  dialog() {
+    console.log("HERE");
+    return (
+      <Dialog
+        open={this.state.expanded}
+        onClose={this.handleClose}
+        aria-labelledby="draggable-dialog-title"
+      >
+        <DialogTitle style={{ cursor: "move" }} id="draggable-dialog-title">
+          {this.state.paper.title}
+        </DialogTitle>
+        <DialogContent>
+          <CardMedia
+            component="img"
+            className={this.classes.media}
+            image={this.state.paper.img}
+            title={truncateText(this.state.paper.title, 96)}
+          />
+          <DialogContentText>
+            <Typography variant="caption" paragraph>
+              {this.state.paper.published_time}
+            </Typography>
+            <Typography variant="caption" paragraph>
+              {this.state.paper.category}
+            </Typography>
+            <Typography variant="subtitle2" paragraph>
+              {this.state.paper.authors}
+            </Typography>
+            <Typography variant="body2" paragraph>
+              {this.state.paper.abstract}
+            </Typography>
+          </DialogContentText>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   render() {
     return (
       <Container className={this.classes.root}>
-        <Card style={{ height: "280px", maxHeight: "350px", overflow: scroll }}>
+        <Card style={{ height: "280px", maxHeight: "350px" }}>
           <CardHeader
             avatar={
               <Avatar aria-label="recipe" className={this.classes.avatar}>
@@ -69,14 +119,18 @@ class PaperPreview extends Component {
                 <MoreVertIcon />
               </IconButton>
             }
-            title={truncateText(this.props.paper.title, 48)}
-            subheader={this.props.paper.published_time}
+            title={truncateText(this.state.paper.title, 48)}
+            subtitle={truncateText(
+              JSON.stringify(this.state.paper.authors),
+              96
+            )}
+            subheader={this.state.paper.published_time}
           />
           <CardMedia
             component="img"
             className={this.classes.media}
-            image={this.props.paper.img}
-            title={truncateText(this.props.paper.title, 96)}
+            image={this.state.paper.img}
+            title={truncateText(this.state.paper.title, 96)}
           />
           <CardContent>
             <Typography variant="body2" color="textSecondary" component="p">
@@ -90,36 +144,17 @@ class PaperPreview extends Component {
             <IconButton aria-label="share">
               <ShareIcon />
             </IconButton>
-            <IconButton
+            <Button
               className={clsx(this.classes.expand, {
                 [this.classes.expandOpen]: this.state.expanded,
               })}
               onClick={this.handleExpandClick}
-              aria-expanded={this.state.expanded}
               aria-label="show more"
             >
-              <ExpandMoreIcon />
-            </IconButton>
+              Read Abstract
+            </Button>
           </CardActions>
-          <Collapse in={this.state.expanded} timeout="auto" unmountOnExit>
-            <CardContent>
-              <Typography variant="h6" paragraph>
-                {this.state.paper.title}
-              </Typography>
-              <Typography variant="caption" paragraph>
-                {this.state.paper.published_time}
-              </Typography>
-              <Typography variant="caption" paragraph>
-                {this.state.paper.category}
-              </Typography>
-              <Typography variant="subtitle2" paragraph>
-                {this.state.paper.authors}
-              </Typography>
-              <Typography variant="body2" paragraph>
-                {this.state.paper.abstract}
-              </Typography>
-            </CardContent>
-          </Collapse>
+          {this.dialog()}
         </Card>
         <div style={{ height: "10px" }}></div>
       </Container>

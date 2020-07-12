@@ -6,9 +6,9 @@ const t = createMuiTheme({
     // common: {},
     type: "dark",
     primary: {
-      main: "#005563",
-      light: "#408291",
-      dark: "#002c39",
+      main: "#001c28",
+      light: "#294350",
+      dark: "#000000",
       contrastText: "#FFFFFF",
     },
     secondary: {
@@ -29,8 +29,8 @@ const t = createMuiTheme({
     //   secondary: "#003056",
     // },
     background: {
-      paper: "#408291",
-      default: "#002c39",
+      paper: "#001c28",
+      default: "#000000",
     },
     transitions: {
       easing: {

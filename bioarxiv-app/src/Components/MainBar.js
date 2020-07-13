@@ -1,5 +1,5 @@
 import CssBaseline from "@material-ui/core/CssBaseline";
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 import clsx from "clsx";
 import {
@@ -12,7 +12,7 @@ import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import IconButton from "@material-ui/core/IconButton";
 import Typography from "@material-ui/core/Typography";
-import InputBase from "@material-ui/core/InputBase";
+
 import Badge from "@material-ui/core/Badge";
 import MenuItem from "@material-ui/core/MenuItem";
 import Menu from "@material-ui/core/Menu";
@@ -24,15 +24,6 @@ import MoreIcon from "@material-ui/icons/MoreVert";
 import t from "../theme";
 import { logout } from "../Util";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
-import SearchIcon from "@material-ui/icons/Search";
-import Drawer from "@material-ui/core/Drawer";
-import List from "@material-ui/core/List";
-import Divider from "@material-ui/core/Divider";
-import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
-import ChevronRightIcon from "@material-ui/icons/ChevronRight";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
-import ListItemText from "@material-ui/core/ListItemText";
 
 const drawerWidth = 240;
 
@@ -51,9 +42,6 @@ const useStyles = makeStyles((theme) => ({
       duration: theme.transitions.duration.enteringScreen,
     }),
   },
-  root: {
-    display: "flex",
-  },
   grow: {
     flexGrow: 1,
   },
@@ -66,15 +54,12 @@ const useStyles = makeStyles((theme) => ({
       display: "block",
     },
   },
-  hide: {
-    display: "none",
-  },
   search: {
     position: "relative",
     borderRadius: theme.shape.borderRadius,
-    backgroundColor: theme.palette.primary.dark,
+    backgroundColor: fade(theme.palette.common.white, 0.15),
     "&:hover": {
-      backgroundColor: theme.palette.primary.light,
+      backgroundColor: fade(theme.palette.common.white, 0.25),
     },
     marginRight: theme.spacing(2),
     marginLeft: 0,
@@ -85,7 +70,6 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   searchIcon: {
-    color: theme.palette.primary.dark,
     padding: theme.spacing(0, 2),
     height: "100%",
     position: "absolute",
@@ -95,7 +79,7 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "center",
   },
   inputRoot: {
-    color: theme.palette.primary.dark,
+    color: "inherit",
   },
   inputInput: {
     padding: theme.spacing(1, 1, 1, 0),
@@ -119,53 +103,18 @@ const useStyles = makeStyles((theme) => ({
       display: "none",
     },
   },
-  content: {
-    flexGrow: 1,
-    padding: theme.spacing(3),
-    transition: theme.transitions.create("margin", {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    marginLeft: -drawerWidth,
-  },
-  contentShift: {
-    transition: theme.transitions.create("margin", {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-    marginLeft: 0,
-  },
-  drawer: {
-    width: drawerWidth,
-    flexShrink: 0,
-  },
-  drawerPaper: {
-    width: drawerWidth,
-  },
-  drawerHeader: {
-    display: "flex",
-    alignItems: "center",
-    padding: theme.spacing(0, 1),
-    // necessary for content to be below app bar
-    ...theme.mixins.toolbar,
-    justifyContent: "flex-end",
-  },
 }));
 
-export default function MainBar() {
+export default function MainBar(props) {
   const classes = useStyles(t);
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
-  const [open, setOpen] = React.useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
+  const [state, setState] = useState(props);
+  useEffect(() => {
+    setState(props);
+  }, [props]);
 
   const theme = useTheme();
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
-
-  const handleDrawerClose = () => {
-    setOpen(false);
-  };
 
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
@@ -220,19 +169,14 @@ export default function MainBar() {
       onClose={handleMobileMenuClose}
     >
       <MenuItem>
-        <IconButton aria-label="show 4 new mails" color="inherit">
-          <Badge badgeContent={4} color="secondary">
-            <MailIcon />
-          </Badge>
-        </IconButton>
+        <IconButton aria-label="show 4 new mails" color="inherit"></IconButton>
         <p>Messages</p>
       </MenuItem>
       <MenuItem>
-        <IconButton aria-label="show 11 new notifications" color="inherit">
-          <Badge badgeContent={11} color="secondary">
-            <NotificationsIcon />
-          </Badge>
-        </IconButton>
+        <IconButton
+          aria-label="show 11 new notifications"
+          color="inherit"
+        ></IconButton>
         <p>Notifications</p>
       </MenuItem>
       <MenuItem onClick={handleProfileMenuOpen}>
@@ -259,57 +203,19 @@ export default function MainBar() {
     </Menu>
   );
 
-  const renderDrawer = (
-    <Drawer
-      className={classes.drawer}
-      variant="persistent"
-      anchor="left"
-      open={open}
-      classes={{
-        paper: classes.drawerPaper,
-      }}
-    >
-      <div className={classes.drawerHeader}>
-        <IconButton onClick={handleDrawerClose}>
-          {theme.direction === "rtl" ? (
-            <ChevronLeftIcon />
-          ) : (
-            <ChevronRightIcon />
-          )}
-        </IconButton>
-      </div>
-
-      <div className={classes.search}>
-        <div className={classes.searchIcon}>
-          <SearchIcon />
-        </div>
-        <InputBase
-          placeholder="Search…"
-          classes={{
-            root: classes.inputRoot,
-            input: classes.inputInput,
-          }}
-          inputProps={{ "aria-label": "search" }}
-        />
-      </div>
-      <List>
-        {["Sort", "Friends", "Discussions", "Library"].map((text, index) => (
-          <ListItem button key={text}>
-            <ListItemText primary={text} />
-          </ListItem>
-        ))}
-      </List>
-      <Divider />
-    </Drawer>
-  );
+  const openDrawerHandler = () => {
+    setState({ open: true });
+    props.openDrawer(true);
+  };
 
   return (
     <ThemeProvider theme={t}>
       <div className={classes.grow}>
         <AppBar
           position="static"
-          className={clsx(classes.appBar, {
-            [classes.appBarShift]: open,
+          className={clsx({
+            [classes.appBar]: true,
+            [classes.appBarShift]: state.open,
           })}
         >
           <Toolbar>
@@ -317,8 +223,8 @@ export default function MainBar() {
               edge="start"
               color="inherit"
               aria-label="open drawer"
-              className={clsx(classes.menuButton, open && classes.hide)}
-              onClick={handleDrawerOpen}
+              onClick={openDrawerHandler}
+              className={clsx(classes.menuButton, state.open && classes.hide)}
             >
               <MenuIcon />
             </IconButton>
@@ -367,7 +273,6 @@ export default function MainBar() {
         </AppBar>
         {renderMobileMenu}
         {renderMenu}
-        {renderDrawer}
       </div>
     </ThemeProvider>
   );
